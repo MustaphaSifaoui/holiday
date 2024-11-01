@@ -547,11 +547,11 @@ if ($resql) {
 		$moreforfilter = $hookmanager->resPrint;
 	}
 
-	if (!empty($moreforfilter)) {
+	/*if (!empty($moreforfilter)) {
 		print '<div class="liste_titre liste_titre_bydiv centpercent">';
 		print $moreforfilter;
 		print '</div>';
-	}
+	}*/
 
 	$varpage = empty($contextpage) ? $_SERVER["PHP_SELF"] : $contextpage;
 	$selectedfields = $form->multiSelectArrayWithCheckbox('selectedfields', $arrayfields, $varpage, getDolGlobalString('MAIN_CHECKBOX_LEFT_COLUMN')); // This also change content of $arrayfields

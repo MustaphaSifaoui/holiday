@@ -131,7 +131,7 @@ $arrayfields = array(
 	'cp.date_create'=>array('label'=>$langs->trans("DateCreation"), 'checked'=>0, 'position'=>500),
 	'cp.tms'=>array('label'=>$langs->trans("DateModificationShort"), 'checked'=>0, 'position'=>501),
 	'cp.statut'=>array('label'=>$langs->trans("Status"), 'checked'=>1, 'position'=>1000),
-    'cp.hdat' => array('label' => $langs->trans("Heure début"), 'checked' => 1, 'position' => 45),
+   // 'cp.hdat' => array('label' => $langs->trans("Heure début"), 'checked' => 1, 'position' => 45),
 );
 // the redirection link happens on the "Reference" filed, it contains the link
 // Extra fields
@@ -317,6 +317,7 @@ if (isset($extrafields->attributes[$object->table_element]['label']) && is_array
 $sql .= ", ".MAIN_DB_PREFIX."user as uu, ".MAIN_DB_PREFIX."user as ua";
 $sql .= " WHERE cp.entity IN (".getEntity('holiday').")";
 $sql .= " AND cp.fk_user = uu.rowid AND cp.fk_validator = ua.rowid "; // Hack pour la recherche sur le tableau
+$sql.= " and cp.fk_type = '37'";
 // Search all
 if (!empty($sall)) {
 	$sql .= natural_search(array_keys($fieldstosearchall), $sall);
@@ -635,9 +636,12 @@ if ($resql) {
 			$typeleaves = $holidaystatic->getTypes(1, -1);
 			$arraytypeleaves = array();
 			foreach ($typeleaves as $key => $val) {
-				$labeltoshow = ($langs->trans($val['code']) != $val['code'] ? $langs->trans($val['code']) : $val['label']);
-				//$labeltoshow .= ($val['delay'] > 0 ? ' ('.$langs->trans("NoticePeriod").': '.$val['delay'].' '.$langs->trans("days").')':'');
-				$arraytypeleaves[$val['rowid']] = $labeltoshow;
+				if ($val['code'] == 'AT') {
+					$labeltoshow = ($langs->trans($val['code']) != $val['code'] ? $langs->trans($val['code']) : $val['label']);
+					$arraytypeleaves[$val['rowid']] = $labeltoshow;
+					$search_type = $val['rowid']; // Set default selection to AT
+					break; // Only display AT
+				}
 			}
 			print $form->selectarray('search_type', $arraytypeleaves, $search_type, 1, 0, 0, '', 0, 0, 0, '', 'maxwidth100', 1);
 		}
@@ -826,8 +830,10 @@ if ($resql) {
 			$date = $obj->date_create;
 			$date_modif = $obj->date_update;
 
-			$starthalfday = ($obj->halfday == -1 || $obj->halfday == 2) ? 'afternoon' : 'morning';
-			$endhalfday = ($obj->halfday == 1 || $obj->halfday == 2) ? 'morning' : 'afternoon';
+//			$starthalfday = ($obj->halfday == -1 || $obj->halfday == 2) ? 'afternoon' : 'morning';
+//			$endhalfday = ($obj->halfday == 1 || $obj->halfday == 2) ? 'morning' : 'afternoon';
+			$starthalfday = $obj->hdat;
+			$endhalfday = $obj->hdat;
 
 			print '<tr class="oddeven">';
 			// Action column
@@ -893,7 +899,7 @@ if ($resql) {
 			if (!empty($arrayfields['cp.date_debut']['checked'])) {
 				print '<td class="center">';
 				print dol_print_date($db->jdate($obj->date_debut), 'day');
-				print ' <span class="opacitymedium nowraponall">('.$langs->trans($listhalfday[$starthalfday]).')</span>';
+				print ' <span class="opacityhight nowraponall">-'.dol_escape_htmltag($obj->hdat).'</span>';
 				print '</td>';
 				if (!$i) {
 					$totalarray['nbfield']++;

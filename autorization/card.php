@@ -100,7 +100,7 @@ if (!empty($user->rights->holiday->writeall)) {
 	$cancreate = 1;
 	$cancreateall = 1;
 }
-/// test push
+
 $candelete = 0;
 if (!empty($user->rights->holiday->delete)) {
 	$candelete = 1;

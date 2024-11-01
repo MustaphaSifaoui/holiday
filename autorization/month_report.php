@@ -1,13 +1,37 @@
 <?php
-/* ... [Existing comments and header remain unchanged] ... */
+/* Copyright (C) 2007-2010  Laurent Destailleur     <eldy@users.sourceforge.net>
+ * Copyright (C) 2011       François Legastelois    <flegastelois@teclib.com>
+ * Copyright (C) 2018-2019  Frédéric France         <frederic.france@netlogic.fr>
+ * Copyright (C) 2020       Tobias Sekan            <tobias.sekan@startmail.com>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <https://www.gnu.org/licenses/>.
+ */
+
+/**
+ *      \file       month_report.php
+ *      \ingroup    holiday
+ *      \brief      Monthly report of leave requests.
+ */
+
 
 // Load Dolibarr environment
 require '../../main.inc.php';
-require_once DOL_DOCUMENT_ROOT.'../holiday/class/holiday.class.php';
-require_once DOL_DOCUMENT_ROOT.'../user/class/user.class.php';
-require_once DOL_DOCUMENT_ROOT.'../core/lib/files.lib.php';
-require_once DOL_DOCUMENT_ROOT.'../core/lib/date.lib.php';
-require_once DOL_DOCUMENT_ROOT.'../core/class/html.formother.class.php';
+require_once DOL_DOCUMENT_ROOT . '../holiday/class/holiday.class.php';
+require_once DOL_DOCUMENT_ROOT . '../user/class/user.class.php';
+require_once DOL_DOCUMENT_ROOT . '../core/lib/files.lib.php';
+require_once DOL_DOCUMENT_ROOT . '../core/lib/date.lib.php';
+require_once DOL_DOCUMENT_ROOT . '../core/class/html.formother.class.php';
 
 // Load translation files required by the page
 $langs->loadLangs(array('holiday', 'hrm'));
@@ -22,19 +46,19 @@ if ($user->socid > 0) { // Protection if external user
 }
 $result = restrictedArea($user, 'holiday', $id, '');
 
-$action      = GETPOST('action', 'aZ09') ? GETPOST('action', 'aZ09') : 'view';
-$massaction  = GETPOST('massaction', 'alpha');
+$action = GETPOST('action', 'aZ09') ? GETPOST('action', 'aZ09') : 'view';
+$massaction = GETPOST('massaction', 'alpha');
 $contextpage = GETPOST('contextpage', 'aZ');
-$optioncss   = GETPOST('optioncss', 'aZ');
+$optioncss = GETPOST('optioncss', 'aZ');
 
-$search_ref         = GETPOST('search_ref', 'alphanohtml');
-$search_employee    = GETPOST('search_employee', 'int');
+$search_ref = GETPOST('search_ref', 'alphanohtml');
+$search_employee = GETPOST('search_employee', 'int');
 $search_description = GETPOST('search_description', 'alphanohtml');
-$search_hdat        = GETPOST('search_hdat', 'alphanohtml'); // Added search_hdat
+$search_hdat = GETPOST('search_hdat', 'alphanohtml'); // Added search_hdat
 
-$limit       = GETPOST('limit', 'int') ? GETPOST('limit', 'int') : $conf->liste_limit;
-$sortfield   = GETPOST('sortfield', 'aZ09comma');
-$sortorder   = GETPOST('sortorder', 'aZ09comma');
+$limit = GETPOST('limit', 'int') ? GETPOST('limit', 'int') : $conf->liste_limit;
+$sortfield = GETPOST('sortfield', 'aZ09comma');
+$sortorder = GETPOST('sortorder', 'aZ09comma');
 
 if (!$sortfield) {
     $sortfield = "cp.rowid";
@@ -58,7 +82,8 @@ $arrayofmassactions = array();
  */
 
 if (GETPOST('cancel', 'alpha')) {
-    $action = 'list'; $massaction = '';
+    $action = 'list';
+    $massaction = '';
 }
 if (!GETPOST('confirmmassaction', 'alpha') && $massaction != 'presend' && $massaction != 'confirm_presend') {
     $massaction = '';
@@ -72,7 +97,7 @@ if ($reshook < 0) {
 
 if (empty($reshook)) {
     // Selection of new fields
-    include DOL_DOCUMENT_ROOT.'/core/actions_changeselectedfields.inc.php';
+    include DOL_DOCUMENT_ROOT . '/core/actions_changeselectedfields.inc.php';
 
     // Purge search criteria
     if (GETPOST('button_removefilter_x', 'alpha') || GETPOST('button_removefilter.x', 'alpha') || GETPOST('button_removefilter', 'alpha')) { // All tests are required to be compatible with all browsers
@@ -101,13 +126,13 @@ if (isset($_SESSION['listview'][$contextpage]['selectedfields'])) {
 
 // Define fields to display
 $arrayfields = array(
-    'cp.ref'            => array('label' => 'Ref', 'checked' => 1, 'position' => 5),
-    'cp.fk_type'        => array('label' => 'Type', 'checked' => 1, 'position' => 10),
-    'cp.fk_user'        => array('label' => 'Employee', 'checked' => 1, 'position' => 20),
-    'cp.date_debut'     => array('label' => 'DateDebCP', 'checked' => 1, 'position' => 30),
-    'cp.hdat'           => array('label' => 'StartHour', 'checked' => 1, 'position' => 35),
-    'cp.date_fin'       => array('label' => 'DateFinCP', 'checked' => 1, 'position' => 32),
-    'cp.description'    => array('label' => 'DescCP', 'checked' => -1, 'position' => 800),
+    'cp.ref' => array('label' => 'Ref', 'checked' => 1, 'position' => 5),
+    'cp.fk_type' => array('label' => 'Type', 'checked' => 1, 'position' => 10),
+    'cp.fk_user' => array('label' => 'Employee', 'checked' => 1, 'position' => 20),
+    'cp.date_debut' => array('label' => 'Date', 'checked' => 1, 'position' => 30),
+    'cp.hdat' => array('label' => 'Heure debut', 'checked' => 1, 'position' => 35),
+    // 'cp.date_fin'    => array('label' => 'DateFinCP', 'checked' => 1, 'position' => 32), // Removed 'cp.date_fin'
+    'cp.description' => array('label' => 'Description', 'checked' => -1, 'position' => 800),
     // Removed 'used_days', 'date_start_month', 'date_end_month', 'used_days_month'
 );
 
@@ -119,7 +144,8 @@ $form = new Form($db);
 $formother = new FormOther($db);
 $holidaystatic = new Holiday($db);
 
-$listhalfday = array('morning'=>$langs->trans("Morning"), "afternoon"=>$langs->trans("Afternoon"));
+// Removed $listhalfday as it is no longer needed
+// $listhalfday = array('morning'=>$langs->trans("Morning"), "afternoon"=>$langs->trans("Afternoon"));
 
 $title = $langs->trans('CPTitreMenu');
 
@@ -127,18 +153,19 @@ llxHeader('', $title);
 
 $search_month = GETPOST("remonth", 'int') ? GETPOST("remonth", 'int') : date("m", time());
 $search_year = GETPOST("reyear", 'int') ? GETPOST("reyear", 'int') : date("Y", time());
-$year_month = sprintf("%04d", $search_year).'-'.sprintf("%02d", $search_month);
+$year_month = sprintf("%04d", $search_year) . '-' . sprintf("%02d", $search_month);
 
 // Modify the SQL query to include only 'Autorisation' type
-$sql = "SELECT cp.rowid, cp.ref, cp.fk_user, cp.date_debut, cp.date_fin, cp.fk_type, cp.description, cp.halfday, cp.statut as status, cp.hdat";
-$sql .= " FROM ".MAIN_DB_PREFIX."holiday cp";
-$sql .= " LEFT JOIN ".MAIN_DB_PREFIX."user u ON cp.fk_user = u.rowid";
+$sql = "SELECT cp.rowid, cp.ref, cp.fk_user, cp.date_debut, cp.fk_type, cp.description, cp.halfday, cp.statut as status, cp.hdat";
+// Removed cp.date_fin from the SELECT statement
+$sql .= " FROM " . MAIN_DB_PREFIX . "holiday cp";
+$sql .= " LEFT JOIN " . MAIN_DB_PREFIX . "user u ON cp.fk_user = u.rowid";
 $sql .= " WHERE cp.rowid > 0";
-$sql .= " AND cp.statut = ".Holiday::STATUS_APPROVED;
+$sql .= " AND cp.statut = " . Holiday::STATUS_APPROVED;
 $sql .= " AND (";
-$sql .= " (date_format(cp.date_debut, '%Y-%m') = '".$db->escape($year_month)."' OR date_format(cp.date_fin, '%Y-%m') = '".$db->escape($year_month)."')";
-$sql .= " OR";    // For leave over several months
-$sql .= " (date_format(cp.date_debut, '%Y-%m') < '".$db->escape($year_month)."' AND date_format(cp.date_fin, '%Y-%m') > '".$db->escape($year_month)."') ";
+$sql .= " (date_format(cp.date_debut, '%Y-%m') = '" . $db->escape($year_month) . "'";
+// Removed date_fin condition as date_fin is no longer used
+$sql .= ")";
 $sql .= " )";
 $sql .= " AND cp.fk_type = '31'"; // Only select 'Autorisation' type
 if (!empty($search_ref)) {
@@ -148,7 +175,7 @@ if (!empty($search_hdat)) { // Added search condition for hdat
     $sql .= natural_search('cp.hdat', $search_hdat);
 }
 if (!empty($search_employee) && $search_employee > 0) {
-    $sql .= " AND cp.fk_user = ".((int) $search_employee);
+    $sql .= " AND cp.fk_user = " . ((int)$search_employee);
 }
 if (!empty($search_description)) {
     $sql .= natural_search('cp.description', $search_description);
@@ -166,35 +193,35 @@ $num = $db->num_rows($resql);
 
 $param = '';
 if (!empty($contextpage) && $contextpage != $_SERVER["PHP_SELF"]) {
-    $param .= '&contextpage='.urlencode($contextpage);
+    $param .= '&contextpage=' . urlencode($contextpage);
 }
 if ($limit > 0 && $limit != $conf->liste_limit) {
-    $param .= '&limit='.urlencode($limit);
+    $param .= '&limit=' . urlencode($limit);
 }
 if (!empty($search_ref)) {
-    $param .= '&search_ref='.urlencode($search_ref);
+    $param .= '&search_ref=' . urlencode($search_ref);
 }
 if (!empty($search_hdat)) { // Added search_hdat to parameters
-    $param .= '&search_hdat='.urlencode($search_hdat);
+    $param .= '&search_hdat=' . urlencode($search_hdat);
 }
 if (!empty($search_employee)) {
-    $param .= '&search_employee='.urlencode($search_employee);
+    $param .= '&search_employee=' . urlencode($search_employee);
 }
 if (!empty($search_description)) {
-    $param .= '&search_description='.urlencode($search_description);
+    $param .= '&search_description=' . urlencode($search_description);
 }
 
-print '<form method="POST" id="searchFormList" action="'.$_SERVER["PHP_SELF"].'">';
+print '<form method="POST" id="searchFormList" action="' . $_SERVER["PHP_SELF"] . '">';
 if ($optioncss != '') {
-    print '<input type="hidden" name="optioncss" value="'.$optioncss.'">';
+    print '<input type="hidden" name="optioncss" value="' . $optioncss . '">';
 }
-print '<input type="hidden" name="token" value="'.newToken().'">';
+print '<input type="hidden" name="token" value="' . newToken() . '">';
 print '<input type="hidden" name="formfilteraction" id="formfilteraction" value="list">';
 print '<input type="hidden" name="action" value="list">';
-print '<input type="hidden" name="sortfield" value="'.$sortfield.'">';
-print '<input type="hidden" name="sortorder" value="'.$sortorder.'">';
-print '<input type="hidden" name="page" value="'.$page.'">';
-print '<input type="hidden" name="contextpage" value="'.$contextpage.'">';
+print '<input type="hidden" name="sortfield" value="' . $sortfield . '">';
+print '<input type="hidden" name="sortorder" value="' . $sortorder . '">';
+print '<input type="hidden" name="page" value="' . $page . '">';
+print '<input type="hidden" name="contextpage" value="' . $contextpage . '">';
 
 print load_fiche_titre($langs->trans('MenuReportMonth'), '', 'title_hrm');
 
@@ -202,7 +229,7 @@ print load_fiche_titre($langs->trans('MenuReportMonth'), '', 'title_hrm');
 print '<div class="tabBar">';
 print $formother->select_month($search_month, 'remonth', 0, 0, 'minwidth50 maxwidth75imp valignmiddle', true);
 print $formother->selectyear($search_year, 'reyear', 0, 10, 5, 0, 0, '', 'valignmiddle width75', true);
-print '<input type="submit" class="button" value="'.dol_escape_htmltag($langs->trans("Search")).'" />';
+print '<input type="submit" class="button" value="' . dol_escape_htmltag($langs->trans("Search")) . '" />';
 print '</div>';
 print '<br>';
 
@@ -228,10 +255,11 @@ if (getDolGlobalString('MAIN_CHECKBOX_LEFT_COLUMN')) {
 // Filter: Ref
 if (!empty($arrayfields['cp.ref']['checked'])) {
     print '<th class="liste_titre">';
-    print '<input class="flat maxwidth100" type="text" name="search_ref" value="'.dol_escape_htmltag($search_ref).'">';
+    print '<input class="flat maxwidth100" type="text" name="search_ref" value="' . dol_escape_htmltag($search_ref) . '">';
     print '</th>';
 }
 
+// Since we are only displaying 'Autorisation', we can disable the Type filter input
 if (!empty($arrayfields['cp.fk_type']['checked'])) {
     print '<th class="liste_titre"></th>'; // Leave empty to disable filter input
 }
@@ -250,18 +278,19 @@ if (!empty($arrayfields['cp.date_debut']['checked'])) {
 // Added search input for 'hdat'
 if (!empty($arrayfields['cp.hdat']['checked'])) {
     print '<th class="liste_titre">';
-    print '<input class="flat maxwidth100" type="text" name="search_hdat" value="'.dol_escape_htmltag($search_hdat).'">';
+    print '<input class="flat maxwidth100" type="text" name="search_hdat" value="' . dol_escape_htmltag($search_hdat) . '">';
     print '</th>';
 }
 
-if (!empty($arrayfields['cp.date_fin']['checked'])) {
-    print '<th class="liste_titre"></th>';
-}
+// Removed 'cp.date_fin' filter
+// if (!empty($arrayfields['cp.date_fin']['checked'])) {
+//     print '<th class="liste_titre"></th>';
+// }
 
 // Filter: Description
 if (!empty($arrayfields['cp.description']['checked'])) {
     print '<th class="liste_titre">';
-    print '<input type="text" class="maxwidth100" name="search_description" value="'.dol_escape_htmltag($search_description).'">';
+    print '<input type="text" class="maxwidth100" name="search_description" value="' . dol_escape_htmltag($search_description) . '">';
     print '</th>';
 }
 // Action column
@@ -276,7 +305,7 @@ print '</tr>';
 print '<tr class="liste_titre">';
 // Action column
 if (getDolGlobalString('MAIN_CHECKBOX_LEFT_COLUMN')) {
-    print getTitleFieldOfList($selectedfields, 0, $_SERVER["PHP_SELF"], '', '', '', '', $sortfield, $sortorder, 'center maxwidthsearch ')."\n";
+    print getTitleFieldOfList($selectedfields, 0, $_SERVER["PHP_SELF"], '', '', '', '', $sortfield, $sortorder, 'center maxwidthsearch ') . "\n";
 }
 if (!empty($arrayfields['cp.ref']['checked'])) {
     print_liste_field_titre($arrayfields['cp.ref']['label'], $_SERVER["PHP_SELF"], 'cp.ref', '', '', '', $sortfield, $sortorder);
@@ -300,34 +329,28 @@ if (!empty($arrayfields['cp.hdat']['checked'])) {
     print_liste_field_titre($arrayfields['cp.hdat']['label'], $_SERVER["PHP_SELF"], 'cp.hdat', '', '', '', $sortfield, $sortorder, 'center ');
 }
 
-if (!empty($arrayfields['cp.date_fin']['checked'])) {
-    print_liste_field_titre($arrayfields['cp.date_fin']['label'], $_SERVER["PHP_SELF"], 'cp.date_fin', '', '', '', $sortfield, $sortorder, 'center ');
-}
+// Removed 'cp.date_fin' column header
+// if (!empty($arrayfields['cp.date_fin']['checked'])) {
+//     print_liste_field_titre($arrayfields['cp.date_fin']['label'], $_SERVER["PHP_SELF"], 'cp.date_fin', '', '', '', $sortfield, $sortorder, 'center ');
+// }
 
 if (!empty($arrayfields['cp.description']['checked'])) {
     print_liste_field_titre($arrayfields['cp.description']['label'], $_SERVER["PHP_SELF"], 'cp.description', '', '', '', $sortfield, $sortorder);
 }
 // Action column
 if (!getDolGlobalString('MAIN_CHECKBOX_LEFT_COLUMN')) {
-    print getTitleFieldOfList($selectedfields, 0, $_SERVER["PHP_SELF"], '', '', '', '', $sortfield, $sortorder, 'center maxwidthsearch ')."\n";
+    print getTitleFieldOfList($selectedfields, 0, $_SERVER["PHP_SELF"], '', '', '', '', $sortfield, $sortorder, 'center maxwidthsearch ') . "\n";
 }
 print '</tr>';
 
 if ($num == 0) {
-    print '<tr><td colspan="11"><span class="opacitymedium">'.$langs->trans('None').'</span></td></tr>';
+    print '<tr><td colspan="7"><span class="opacitymedium">' . $langs->trans('None') . '</span></td></tr>';
 } else {
     while ($obj = $db->fetch_object($resql)) {
         $user = new User($db);
         $user->fetch($obj->fk_user);
 
         $date_start = $db->jdate($obj->date_debut, true);
-        $date_end = $db->jdate($obj->date_fin, true);
-
-        $tmpstart = dol_getdate($date_start);
-        $tmpend = dol_getdate($date_end);
-
-        $starthalfday = ($obj->halfday == -1 || $obj->halfday == 2) ? 'afternoon' : 'morning';
-        $endhalfday = ($obj->halfday == 1 || $obj->halfday == 2) ? 'morning' : 'afternoon';
 
         // Leave request
         $holidaystatic->id = $obj->rowid;
@@ -340,7 +363,7 @@ if ($num == 0) {
         $holidaystatic->description = $obj->description;
         $holidaystatic->halfday = $obj->halfday;
         $holidaystatic->date_debut = $db->jdate($obj->date_debut);
-        $holidaystatic->date_fin = $db->jdate($obj->date_fin);
+        // Removed date_fin
 
         print '<tr class="oddeven">';
         // Action column
@@ -349,21 +372,20 @@ if ($num == 0) {
         }
 
         if (!empty($arrayfields['cp.ref']['checked'])) {
-            print '<td class="nowraponall">'.$holidaystatic->getNomUrl(1, 1).'</td>';
+            print '<td class="nowraponall">' . $holidaystatic->getNomUrl(1, 1) . '</td>';
         }
 
         // Display 'Type' column with 'Autorisation'
         if (!empty($arrayfields['cp.fk_type']['checked'])) {
-            print '<td>'.$langs->trans('Autorisation').'</td>';
+            print '<td>' . $langs->trans('Autorisation') . '</td>';
         }
 
         if (!empty($arrayfields['cp.fk_user']['checked'])) {
-            print '<td class="tdoverflowmax150">'.$user->getFullName($langs).'</td>';
+            print '<td class="tdoverflowmax150">' . $user->getFullName($langs) . '</td>';
         }
 
         if (!empty($arrayfields['cp.date_debut']['checked'])) {
-            print '<td class="center">'.dol_print_date($db->jdate($obj->date_debut), 'day');
-            print ' <span class="opacitymedium">('.$langs->trans($listhalfday[$starthalfday]).')</span>';
+            print '<td class="center">' . dol_print_date($db->jdate($obj->date_debut), 'day');
             print '</td>';
         }
 
@@ -374,11 +396,11 @@ if ($num == 0) {
             print '</td>';
         }
 
-        if (!empty($arrayfields['cp.date_fin']['checked'])) {
-            print '<td class="center">'.dol_print_date($db->jdate($obj->date_fin), 'day');
-            print ' <span class="opacitymedium">('.$langs->trans($listhalfday[$endhalfday]).')</span>';
-            print '</td>';
-        }
+        // Removed 'cp.date_fin' column data
+        // if (!empty($arrayfields['cp.date_fin']['checked'])) {
+        //     print '<td class="center">'.dol_print_date($db->jdate($obj->date_fin), 'day');
+        //     print '</td>';
+        // }
 
         if (!empty($arrayfields['cp.description']['checked'])) {
             print '<td class="maxwidth300 small">';

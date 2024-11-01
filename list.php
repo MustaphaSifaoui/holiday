@@ -512,14 +512,14 @@ if ($resql) {
 		}
 
 		if ($cancreate) {
-			print '<a href="'.DOL_URL_ROOT.'/holiday/autorization/card.php?action=create&fuserid='.$user_id.'" class="butAction">'.$langs->trans("AddCP").'</a>';
+			print '<a href="'.DOL_URL_ROOT.'/holiday/autorization/card.php?action=create&fuserid='.$user_id.'" class="butAction">'.$langs->trans("TEST").'</a>';
 		}
 
 		print '</div>';
 	} else {
-		$title = $langs->trans("ListeCP");
+		$title = $langs->trans("ListeAT");
 
-		$newcardbutton = dolGetButtonTitle($langs->trans('MenuAddCP'), '', 'fa fa-plus-circle', DOL_URL_ROOT.'/holiday/card.php?action=create', '', $user->rights->holiday->write);
+		$newcardbutton = dolGetButtonTitle($langs->trans('MenuAddCP'), '', 'fa fa-plus-circle', DOL_URL_ROOT.'/holiday/autorization/card.php?action=create', '', $user->rights->holiday->write);
 
 		print_barre_liste($title, $page, $_SERVER["PHP_SELF"], $param, $sortfield, $sortorder, $massactionbutton, $num, $nbtotalofrecords, 'title_hrm', 0, $newcardbutton, '', $limit, 0, 0, 1);
 	}
@@ -547,11 +547,11 @@ if ($resql) {
 		$moreforfilter = $hookmanager->resPrint;
 	}
 
-	if (!empty($moreforfilter)) {
+	/*if (!empty($moreforfilter)) {
 		print '<div class="liste_titre liste_titre_bydiv centpercent">';
 		print $moreforfilter;
 		print '</div>';
-	}
+	}*/
 
 	$varpage = empty($contextpage) ? $_SERVER["PHP_SELF"] : $contextpage;
 	$selectedfields = $form->multiSelectArrayWithCheckbox('selectedfields', $arrayfields, $varpage, getDolGlobalString('MAIN_CHECKBOX_LEFT_COLUMN')); // This also change content of $arrayfields

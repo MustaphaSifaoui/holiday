@@ -925,7 +925,7 @@ $object = new Holiday($db);
 
 $listhalfday = array('morning'=>$langs->trans("Morning"), "afternoon"=>$langs->trans("Afternoon"));
 
-$title = $langs->trans('Leave');
+$title = $langs->trans('ATTitreMenu');
 $help_url = 'EN:Module_Holiday';
 
 llxHeader('', $title, $help_url);

@@ -161,7 +161,7 @@ $formother = new FormOther($db);
 $holidaylogstatic = new stdClass();
 $alltypeleaves = $object->getTypes(1, -1); // To have labels
 
-$title = $langs->trans('CPTitreMenu');
+$title = $langs->trans('ATTitreMenu');
 llxHeader('', $title);
 
 $sqlwhere = '';

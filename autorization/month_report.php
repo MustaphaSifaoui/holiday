@@ -147,7 +147,7 @@ $holidaystatic = new Holiday($db);
 // Removed $listhalfday as it is no longer needed
 // $listhalfday = array('morning'=>$langs->trans("Morning"), "afternoon"=>$langs->trans("Afternoon"));
 
-$title = $langs->trans('CPTitreMenu');
+$title = $langs->trans('ATTitreMenu');
 
 llxHeader('', $title);
 

@@ -205,7 +205,7 @@ $form = new Form($db);
 $userstatic = new User($db);
 
 
-$title = $langs->trans('CPTitreMenu');
+$title = $langs->trans('ATTitreMenu');
 
 llxHeader('', $title);
 

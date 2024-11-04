@@ -96,7 +96,7 @@ include DOL_DOCUMENT_ROOT.'/core/actions_linkedfiles.inc.php';
 $form = new Form($db);
 $formfile = new FormFile($db);
 
-$title = $langs->trans("Leave").' - '.$langs->trans("Files");
+$title = $langs->trans("ATTitreMenu").' - '.$langs->trans("Files");
 
 llxHeader('', $title);
 

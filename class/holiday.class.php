@@ -750,9 +750,9 @@ public function getTypesById($typeId) {
 
     return $types;
 }
-	 
-	 
-	 
+
+
+
 	public function nb_days_requestedtot($start_date, $end_date,$halfday) {
 		$start = $start_date;
 		$end = $end_date;
@@ -763,9 +763,9 @@ public function getTypesById($typeId) {
 			// Ajouter un log pour chaque itération
 			dol_syslog("-----------------------Processing date: " . date("Y-m-d", $start), LOG_DEBUG);
 
-			
+
 				$count++; // Ajoutez 1 pour chaque journée complète
-			
+
 			$start = strtotime("+1 day", $start);
 		}
 
@@ -779,14 +779,14 @@ public function getTypesById($typeId) {
 
 		return $count;
 	}
-	 
-	 
-	 /////khalil 
-	 
+
+
+	 /////khalil
+
 public function getTotalHollyDaysCount($start_date, $end_date) {
     $start = $start_date;
     $end = $end_date;
-	
+
     $count = 0;
 
     while ($start <= $end) {
@@ -806,7 +806,7 @@ public function getTotalHollyDaysCount($start_date, $end_date) {
 
         if ($resql) {
             $obj = $this->db->fetch_object($resql);
-            
+
             // Ne pas compter le jour férié deux fois s'il tombe sur un week-end
             if ($obj->count > 0 && $dayOfWeek < 6) {
                 $count += $obj->count;
@@ -820,8 +820,8 @@ public function getTotalHollyDaysCount($start_date, $end_date) {
     return $count;
 }
 
-	 
-	 
+
+
 	public function validate($user = null, $notrigger = 0)
 	{
 		//khalil
@@ -837,9 +837,9 @@ public function getTotalHollyDaysCount($start_date, $end_date) {
 	$halfday=$this->halfday;
 
     // Calculer le nombre de jours entre la date de début et la date de fin
-	
-	
-	
+
+
+
     $nb_days_requested =$this->nb_days_requestedtot($start_date, $end_date,$halfday)- ($this->getTotalHollyDaysCount($start_date, $end_date,$halfday) );
 
     // Vérifier si le solde futur sera négatif
@@ -976,9 +976,9 @@ public function getTotalHollyDaysCount($start_date, $end_date) {
     dol_syslog("------------Validation halfday: ".$halfday, LOG_DEBUG);
 
     // Calculer le nombre de jours entre la date de début et la date de fin
-	
-	
-	
+
+
+
     $nb_days_requested =$this->nb_days_requestedtot($start_date, $end_date,$halfday)- ($this->getTotalHollyDaysCount($start_date, $end_date));
 
     // Vérifier si le solde futur sera négatif
@@ -1470,7 +1470,13 @@ public function getTotalHollyDaysCount($start_date, $end_date) {
 		}
 		$label .= '<br><b>'.$langs->trans('Ref').':</b> '.$this->ref;
 
-		$url = DOL_URL_ROOT.'/holiday/autorization/card.php?id='.$this->id;
+		//$url = DOL_URL_ROOT.'/holiday/card.php?id='.$this->id;
+
+		$url = DOL_URL_ROOT . '/holiday/card.php?id='.$this->id;
+		if (strpos($_SERVER['REQUEST_URI'], 'holiday/autorization') !== false) {
+			$url = DOL_URL_ROOT . '/holiday/autorization/card.php?id='.$this->id;
+		}
+
 
 		//if ($option != 'nolink')
 		//{

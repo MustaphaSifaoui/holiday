@@ -1243,8 +1243,8 @@ if ((empty($id) && empty($ref)) || $action == 'create' || $action == 'add') {
 				print '</td>';
 				print '</tr>';
 
-				//$starthalfday = ($object->halfday == -1 || $object->halfday == 2) ? 'afternoon' : 'morning';
-				//$endhalfday = ($object->halfday == 1 || $object->halfday == 2) ? 'morning' : 'afternoon';
+				$starthalfday = ($object->halfday == -1 || $object->halfday == 2) ? 'afternoon' : 'morning';
+				$endhalfday = ($object->halfday == 1 || $object->halfday == 2) ? 'morning' : 'afternoon';
 
 				if (!$edit) {
 					print '<tr>';

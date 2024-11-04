@@ -59,11 +59,6 @@ $extrafields->fetch_name_optionals_label($object->table_element);
 if (($id > 0) || $ref) {
     $object->fetch($id, $ref);
 
-    // Check if the holiday request is of type 'Autorisation'
-    if ($object->fk_type != '31') { // Replace '31' with the correct ID for 'Autorisation' if needed
-        accessforbidden($langs->trans("AccessForbidden"));
-    }
-
     // Check current user can read this leave request
     $canread = 0;
     if (!empty($user->rights->holiday->readall)) {

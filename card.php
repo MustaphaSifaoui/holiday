@@ -1442,29 +1442,29 @@ if ((empty($id) && empty($ref)) || $action == 'create' || $action == 'add') {
 				// Confirmation messages
 				if ($action == 'delete') {
 					if ($candelete) {
-						print $form->formconfirm($_SERVER["PHP_SELF"]."?id=".$object->id, $langs->trans("TitleDeleteCP"), $langs->trans("ConfirmDeleteCP"), "confirm_delete", '', 0, 1);
+						print $form->formconfirm($_SERVER["PHP_SELF"]."?id=".$object->id, $langs->trans("TitleDeleteCP"), $langs->trans("ConfirmDeleteAT"), "confirm_delete", '', 0, 1);
 					}
 				}
 
 				// Si envoi en validation
 				if ($action == 'sendToValidate' && $object->statut == Holiday::STATUS_DRAFT) {
-					print $form->formconfirm($_SERVER["PHP_SELF"]."?id=".$object->id, $langs->trans("TitleToValidCP"), $langs->trans("ConfirmToValidCP"), "confirm_send", '', 1, 1);
+					print $form->formconfirm($_SERVER["PHP_SELF"]."?id=".$object->id, $langs->trans("TitleToValidCP"), $langs->trans("ConfirmToValidAT"), "confirm_send", '', 1, 1);
 				}
 
 				// Si validation de la demande
 				if ($action == 'valid') {
-					print $form->formconfirm($_SERVER["PHP_SELF"]."?id=".$object->id, $langs->trans("TitleValidCP"), $langs->trans("ConfirmValidCP"), "confirm_valid", '', 1, 1);
+					print $form->formconfirm($_SERVER["PHP_SELF"]."?id=".$object->id, $langs->trans("TitleValidCP"), $langs->trans("ConfirmToValidAT"), "confirm_valid", '', 1, 1);
 				}
 
 				// Si refus de la demande
 				if ($action == 'refuse') {
 					$array_input = array(array('type'=>"text", 'label'=> $langs->trans('DetailRefusCP'), 'name'=>"detail_refuse", 'size'=>"50", 'value'=>""));
-					print $form->formconfirm($_SERVER["PHP_SELF"]."?id=".$object->id."&action=confirm_refuse", $langs->trans("TitleRefuseCP"), $langs->trans('ConfirmRefuseCP'), "confirm_refuse", $array_input, 1, 0);
+					print $form->formconfirm($_SERVER["PHP_SELF"]."?id=".$object->id."&action=confirm_refuse", $langs->trans("TitleRefuseAT"), $langs->trans('ConfirmRefuseAT'), "confirm_refuse", $array_input, 1, 0);
 				}
 
 				// Si annulation de la demande
 				if ($action == 'cancel') {
-					print $form->formconfirm($_SERVER["PHP_SELF"]."?id=".$object->id, $langs->trans("TitleCancelCP"), $langs->trans("ConfirmCancelCP"), "confirm_cancel", '', 1, 1);
+					print $form->formconfirm($_SERVER["PHP_SELF"]."?id=".$object->id, $langs->trans("TitleCancelCP"), $langs->trans("ConfirmCancelAT"), "confirm_cancel", '', 1, 1);
 				}
 
 				// Si back to draft

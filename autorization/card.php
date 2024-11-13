@@ -24,7 +24,7 @@
  */
 
 /**
- *   	\file       htdocs/holiday/card.php
+ *   	\file       htdocs/holiday/autorization/card.php
  *		\ingroup    holiday
  *		\brief      Form and file creation of paid holiday.
  */
@@ -165,11 +165,11 @@ if (empty($reshook)) {
 			$db->begin();
 
 			$date_debut = dol_mktime(0, 0, 0, GETPOST('date_debut_month'), GETPOST('date_debut_day'), GETPOST('date_debut_year'));
-			//$date_fin = dol_mktime(0, 0, 0, GETPOST('date_fin_month'), GETPOST('date_fin_day'), GETPOST('date_fin_year'));
-			//$date_debut_gmt = dol_mktime(0, 0, 0, GETPOST('date_debut_month'), GETPOST('date_debut_day'), GETPOST('date_debut_year'), 1);
-			//$date_fin_gmt = dol_mktime(0, 0, 0, GETPOST('date_fin_month'), GETPOST('date_fin_day'), GETPOST('date_fin_year'), 1);
-			//$starthalfday = GETPOST('starthalfday');
-			//$endhalfday = GETPOST('endhalfday');
+			$date_fin = dol_mktime(0, 0, 0, GETPOST('date_fin_month'), GETPOST('date_fin_day'), GETPOST('date_fin_year'));
+			$date_debut_gmt = dol_mktime(0, 0, 0, GETPOST('date_debut_month'), GETPOST('date_debut_day'), GETPOST('date_debut_year'), 1);
+			$date_fin_gmt = dol_mktime(0, 0, 0, GETPOST('date_fin_month'), GETPOST('date_fin_day'), GETPOST('date_fin_year'), 1);
+			$starthalfday = GETPOST('starthalfday');
+			$endhalfday = GETPOST('endhalfday');
 			$type = GETPOST('type');
             $hdat = GETPOST('hdat', 'alpha'); // Use 'alpha' or appropriate filter
 
@@ -1011,7 +1011,7 @@ if ((empty($id) && empty($ref)) || $action == 'create' || $action == 'add') {
 		print '<input type="hidden" name="action" value="add" />'."\n";
 
         //Responsible for displaying alance
-        /*
+
 		if (empty($conf->global->HOLIDAY_HIDE_BALANCE)) {
 			print dol_get_fiche_head('', '', '', -1);
 
@@ -1032,7 +1032,6 @@ if ((empty($id) && empty($ref)) || $action == 'create' || $action == 'add') {
 		} elseif (!is_numeric($conf->global->HOLIDAY_HIDE_BALANCE)) {
 			print $langs->trans($conf->global->HOLIDAY_HIDE_BALANCE).'<br>';
 		}
-        */
 
         // Request submission form
 		print dol_get_fiche_head();

@@ -276,6 +276,16 @@ class Holiday extends CommonObject
         if (empty($this->fk_type) || !is_numeric($this->fk_type) || $this->fk_type < 0) {
             $this->error = "ErrorBadParameterFkType"; return -1;
         }
+        //Update made to fix validation process for authorization
+        // Set date_fin to date_debut if date_fin is empty
+        if (empty($this->date_fin)) {
+            $this->date_fin = $this->date_debut;
+            $this->date_fin_gmt = $this->date_debut_gmt;
+        }
+
+        // Set halfday to 0
+        $this->halfday = 0;
+
 
         // Insert request
         $sql = "INSERT INTO ".MAIN_DB_PREFIX."holiday(";
@@ -968,11 +978,19 @@ public function getTotalHollyDaysCount($start_date, $end_date) {
     $error = 0;
 
     $checkBalance = getDictionaryValue('c_holiday_types', 'block_if_negative', $this->fk_type);
-
-    // Obtenir les dates de début et de fin de la demande de congé
-    $start_date = $this->date_debut_gmt;
-    $end_date = $this->date_fin_gmt;
-	$halfday=$this->halfday;
+//Update made to fix validation process for authorization
+//    // Obtenir les dates de début et de fin de la demande de congé
+//    $start_date = $this->date_debut_gmt;
+//    $end_date = $this->date_fin_gmt;
+//	$halfday=$this->halfday;
+        // Set date_fin to date_debut if date_fin is empty
+        if (empty($this->date_fin)) {
+            $this->date_fin = $this->date_debut;
+            $this->date_fin_gmt = $this->date_debut_gmt;
+        }
+//Update made to fix validation process for authorization
+        // Set halfday to 0
+        $this->halfday = 0;
     dol_syslog("------------Validation halfday: ".$halfday, LOG_DEBUG);
 
     // Calculer le nombre de jours entre la date de début et la date de fin

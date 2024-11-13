@@ -314,6 +314,7 @@ if (isset($extrafields->attributes[$object->table_element]['label']) && is_array
 $sql .= ", ".MAIN_DB_PREFIX."user as uu, ".MAIN_DB_PREFIX."user as ua";
 $sql .= " WHERE cp.entity IN (".getEntity('holiday').")";
 $sql .= " AND cp.fk_user = uu.rowid AND cp.fk_validator = ua.rowid "; // Hack pour la recherche sur le tableau
+$sql.= "AND cp.fk_type <> '32' ";
 // Search all
 if (!empty($sall)) {
 	$sql .= natural_search(array_keys($fieldstosearchall), $sall);

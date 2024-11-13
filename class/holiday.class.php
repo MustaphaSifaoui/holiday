@@ -860,107 +860,115 @@ public function getTotalHollyDaysCount($start_date, $end_date) {
     dol_syslog("------------Checking balance for user ".$this->fk_user.", type ".$this->fk_type, LOG_DEBUG);
     dol_syslog("-------------Current balance: ".$balance.", Requested days: ".$nb_days_requested.", Future balance: ".$future_balance, LOG_DEBUG);
 
+
+
     if ($checkBalance > 0) {
         if ($future_balance < 0) {
-            $this->error = '	';
-            dol_syslog("-----------Leave request blocked. Future balance is negative.", LOG_DEBUG);
-            return -1;
+            if ($this->fk_type == '32') {
+                $this->error = "Solde d'autorisation épuisé";
+                dol_syslog("-----------Leave request blocked. Future balance is negative and fk_type is 32.", LOG_DEBUG);
+
+                return -1;
+            } elseif ($checkBalance > 0) {
+                $this->error = ' ';
+                dol_syslog("-----------Leave request blocked. Future balance is negative.", LOG_DEBUG);
+                return -1;
+            }
+        }
+
+        // Define new ref
+        if (!$error && (preg_match('/^[\(]?PROV/i', $this->ref) || empty($this->ref) || $this->ref == $this->id)) {
+            $num = $this->getNextNumRef(null);
         } else {
-            dol_syslog("---------Leave request approved. Future balance is positive.", LOG_DEBUG);
+            $num = $this->ref;
+        }
+        $this->newref = dol_sanitizeFileName($num);
+
+        // Update status
+        $sql = "UPDATE " . MAIN_DB_PREFIX . "holiday SET";
+        $sql .= " fk_user_valid = " . ((int)$user->id) . ",";
+        $sql .= " date_valid = '" . $this->db->idate(dol_now()) . "',";
+        if (!empty($this->statut) && is_numeric($this->statut)) {
+            $sql .= " statut = " . ((int)$this->statut) . ",";
+        } else {
+            $this->error = 'Property status must be a numeric value';
+            $error++;
+        }
+        $sql .= " ref = '" . $this->db->escape($num) . "'";
+        $sql .= " WHERE rowid = " . ((int)$this->id);
+
+        $this->db->begin();
+
+        dol_syslog(get_class($this) . "::validate", LOG_DEBUG);
+        $resql = $this->db->query($sql);
+        if (!$resql) {
+            $error++;
+            $this->errors[] = "Error " . $this->db->lasterror();
+        }
+
+        if (!$error) {
+            if (!$notrigger) {
+                // Call trigger
+                $result = $this->call_trigger('HOLIDAY_VALIDATE', $user);
+                if ($result < 0) {
+                    $error++;
+                }
+                // End call triggers
+            }
+        }
+
+        if (!$error) {
+            $this->oldref = $this->ref;
+
+            // Rename directory if dir was a temporary ref
+            if (preg_match('/^[\(]?PROV/i', $this->ref)) {
+                // Now we rename also files into index
+                $sql = 'UPDATE ' . MAIN_DB_PREFIX . "ecm_files set filename = CONCAT('" . $this->db->escape($this->newref) . "', SUBSTR(filename, " . (strlen($this->ref) + 1) . ")), filepath = 'holiday/" . $this->db->escape($this->newref) . "'";
+                $sql .= " WHERE filename LIKE '" . $this->db->escape($this->ref) . "%' AND filepath = 'holiday/" . $this->db->escape($this->ref) . "' and entity = " . ((int)$conf->entity);
+                $resql = $this->db->query($sql);
+                if (!$resql) {
+                    $error++;
+                    $this->error = $this->db->lasterror();
+                }
+
+                // We rename directory ($this->ref = old ref, $num = new ref) in order not to lose the attachments
+                $oldref = dol_sanitizeFileName($this->ref);
+                $newref = dol_sanitizeFileName($num);
+                $dirsource = $conf->holiday->multidir_output[$this->entity] . '/' . $oldref;
+                $dirdest = $conf->holiday->multidir_output[$this->entity] . '/' . $newref;
+                if (!$error && file_exists($dirsource)) {
+                    dol_syslog(get_class($this) . "::validate rename dir " . $dirsource . " into " . $dirdest);
+                    if (@rename($dirsource, $dirdest)) {
+                        dol_syslog("Rename ok");
+                        // Rename docs starting with $oldref with $newref
+                        $listoffiles = dol_dir_list($dirdest, 'files', 1, '^' . preg_quote($oldref, '/'));
+                        foreach ($listoffiles as $fileentry) {
+                            $dirsource = $fileentry['name'];
+                            $dirdest = preg_replace('/^' . preg_quote($oldref, '/') . '/', $newref, $dirsource);
+                            $dirsource = $fileentry['path'] . '/' . $dirsource;
+                            $dirdest = $fileentry['path'] . '/' . $dirdest;
+                            @rename($dirsource, $dirdest);
+                        }
+                    }
+                }
+            }
+        }
+
+
+        // Commit or rollback
+        if ($error) {
+            foreach ($this->errors as $errmsg) {
+                dol_syslog(get_class($this) . "::validate " . $errmsg, LOG_ERR);
+                $this->error .= ($this->error ? ', ' . $errmsg : $errmsg);
+            }
+            $this->db->rollback();
+            return -1 * $error;
+        } else {
+            $this->db->commit();
+            return 1;
         }
     }
-
-		// Define new ref
-		if (!$error && (preg_match('/^[\(]?PROV/i', $this->ref) || empty($this->ref) || $this->ref == $this->id)) {
-			$num = $this->getNextNumRef(null);
-		} else {
-			$num = $this->ref;
-		}
-		$this->newref = dol_sanitizeFileName($num);
-
-		// Update status
-		$sql = "UPDATE ".MAIN_DB_PREFIX."holiday SET";
-		$sql .= " fk_user_valid = ".((int) $user->id).",";
-		$sql .= " date_valid = '".$this->db->idate(dol_now())."',";
-		if (!empty($this->statut) && is_numeric($this->statut)) {
-			$sql .= " statut = ".((int) $this->statut).",";
-		} else {
-			$this->error = 'Property status must be a numeric value';
-			$error++;
-		}
-		$sql .= " ref = '".$this->db->escape($num)."'";
-		$sql .= " WHERE rowid = ".((int) $this->id);
-
-		$this->db->begin();
-
-		dol_syslog(get_class($this)."::validate", LOG_DEBUG);
-		$resql = $this->db->query($sql);
-		if (!$resql) {
-			$error++; $this->errors[] = "Error ".$this->db->lasterror();
-		}
-
-		if (!$error) {
-			if (!$notrigger) {
-				// Call trigger
-				$result = $this->call_trigger('HOLIDAY_VALIDATE', $user);
-				if ($result < 0) {
-					$error++;
-				}
-				// End call triggers
-			}
-		}
-
-		if (!$error) {
-			$this->oldref = $this->ref;
-
-			// Rename directory if dir was a temporary ref
-			if (preg_match('/^[\(]?PROV/i', $this->ref)) {
-				// Now we rename also files into index
-				$sql = 'UPDATE ' . MAIN_DB_PREFIX . "ecm_files set filename = CONCAT('" . $this->db->escape($this->newref) . "', SUBSTR(filename, " . (strlen($this->ref) + 1) . ")), filepath = 'holiday/" . $this->db->escape($this->newref) . "'";
-				$sql .= " WHERE filename LIKE '" . $this->db->escape($this->ref) . "%' AND filepath = 'holiday/" . $this->db->escape($this->ref) . "' and entity = " . ((int) $conf->entity);
-				$resql = $this->db->query($sql);
-				if (!$resql) {
-					$error++;
-					$this->error = $this->db->lasterror();
-				}
-
-				// We rename directory ($this->ref = old ref, $num = new ref) in order not to lose the attachments
-				$oldref = dol_sanitizeFileName($this->ref);
-				$newref = dol_sanitizeFileName($num);
-				$dirsource = $conf->holiday->multidir_output[$this->entity] . '/' . $oldref;
-				$dirdest = $conf->holiday->multidir_output[$this->entity] . '/' . $newref;
-				if (!$error && file_exists($dirsource)) {
-					dol_syslog(get_class($this) . "::validate rename dir " . $dirsource . " into " . $dirdest);
-					if (@rename($dirsource, $dirdest)) {
-						dol_syslog("Rename ok");
-						// Rename docs starting with $oldref with $newref
-						$listoffiles = dol_dir_list($dirdest, 'files', 1, '^' . preg_quote($oldref, '/'));
-						foreach ($listoffiles as $fileentry) {
-							$dirsource = $fileentry['name'];
-							$dirdest = preg_replace('/^' . preg_quote($oldref, '/') . '/', $newref, $dirsource);
-							$dirsource = $fileentry['path'] . '/' . $dirsource;
-							$dirdest = $fileentry['path'] . '/' . $dirdest;
-							@rename($dirsource, $dirdest);
-						}
-					}
-				}
-			}
-		}
-
-
-		// Commit or rollback
-		if ($error) {
-			foreach ($this->errors as $errmsg) {
-				dol_syslog(get_class($this)."::validate ".$errmsg, LOG_ERR);
-				$this->error .= ($this->error ? ', '.$errmsg : $errmsg);
-			}
-			$this->db->rollback();
-			return -1 * $error;
-		} else {
-			$this->db->commit();
-			return 1;
-		}
-	}
+    }
 
 
 	/**

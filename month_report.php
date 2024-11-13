@@ -159,6 +159,7 @@ $sql .= " (date_format(cp.date_debut, '%Y-%m') = '".$db->escape($year_month)."' 
 $sql .= " OR";	// For leave over several months
 $sql .= " (date_format(cp.date_debut, '%Y-%m') < '".$db->escape($year_month)."' AND date_format(cp.date_fin, '%Y-%m') > '".$db->escape($year_month)."') ";
 $sql .= " )";
+$sql .= " AND cp.fk_type <> '32'"; // Exclude 'Autorisation' type
 if (!empty($search_ref)) {
 	$sql .= natural_search('cp.ref', $search_ref);
 }

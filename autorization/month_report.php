@@ -167,7 +167,7 @@ $sql .= " (date_format(cp.date_debut, '%Y-%m') = '" . $db->escape($year_month) .
 // Removed date_fin condition as date_fin is no longer used
 $sql .= ")";
 $sql .= " )";
-$sql .= " AND cp.fk_type = '31'"; // Only select 'Autorisation' type
+$sql .= " AND cp.fk_type = '32'"; // Only select 'Autorisation' type
 if (!empty($search_ref)) {
     $sql .= natural_search('cp.ref', $search_ref);
 }

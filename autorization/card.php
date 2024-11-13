@@ -134,7 +134,7 @@ if (empty($reshook)) {
 			if (empty($id) && (($action != 'add' && $action != 'create') || $cancel)) {
 				$backtopage = $backurlforlist;
 			} else {
-				$backtopage = DOL_URL_ROOT.'/holiday/card.php?id='.((!empty($id) && $id > 0) ? $id : '__ID__');
+				$backtopage = DOL_URL_ROOT.'/holiday/authorization/card.php?id='.((!empty($id) && $id > 0) ? $id : '__ID__');
 			}
 		}
 	}
@@ -517,7 +517,7 @@ if (empty($reshook)) {
 					}
 				}
 
-				$link = dol_buildpath("/holiday/card.php", 3) . '?id='.$object->id;
+				$link = dol_buildpath("/holiday/authorization/card.php", 3) . '?id='.$object->id;
 
 				$message .= "<ul>";
 				$message .= "<li>".$langs->transnoentitiesnoconv("Name")." : ".dolGetFirstLastname($expediteur->firstname, $expediteur->lastname)."</li>\n";
@@ -641,7 +641,7 @@ if (empty($reshook)) {
 
 					$message .= "<p>".$langs->transnoentities("HolidaysValidatedBody", dol_print_date($object->date_debut, 'day'), dol_print_date($object->date_fin, 'day'))."</p>\n";
 
-					$link = dol_buildpath('/holiday/card.php', 3).'?id='.$object->id;
+					$link = dol_buildpath('/holiday/authorization/card.php', 3).'?id='.$object->id;
 
 					$message .= "<ul>\n";
 					$message .= "<li>".$langs->transnoentitiesnoconv("ValidatedBy")." : ".dolGetFirstLastname($expediteur->firstname, $expediteur->lastname)."</li>\n";
@@ -724,7 +724,7 @@ if (empty($reshook)) {
 						$message .= "<p>".$langs->transnoentities("HolidaysRefusedBody", dol_print_date($object->date_debut, 'day'), dol_print_date($object->date_fin, 'day'))."<p>\n";
 						$message .= "<p>".GETPOST('detail_refuse', 'alpha')."</p>";
 
-						$link = dol_buildpath('/holiday/card.php', 3).'?id='.$object->id;
+						$link = dol_buildpath('/holiday/authorization/card.php', 3).'?id='.$object->id;
 
 						$message .= "<ul>\n";
 						$message .= "<li>".$langs->transnoentitiesnoconv("ModifiedBy")." : ".dolGetFirstLastname($expediteur->firstname, $expediteur->lastname)."</li>\n";
@@ -782,7 +782,6 @@ if (empty($reshook)) {
 
 		if (!$error) {
 			$db->commit();
-
 			header('Location: '.DOL_URL_ROOT.'/holiday/autorization/card.php?id='.$object->id);
 			//header('Location: '.$_SERVER["PHP_SELF"].'?id='.$object->id);
 			exit;

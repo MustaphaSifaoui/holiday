@@ -1113,7 +1113,7 @@ if ((empty($id) && empty($ref)) || $action == 'create' || $action == 'add') {
 			print $form->selectDate($tmpdate, 'date_debut_', 0, 0, 0, '', 1, 1);
 		}
 		print ' &nbsp; &nbsp; ';
-        print '<input type="time" name="hdat" id="hdat" min="09:00" max="18:00" value="'.(GETPOST('hdat') ? GETPOST('hdat', 'alpha') : '00:00').'" required>';
+        print '<input type="time" name="hdat" id="hdat" min="08:00" max="18:00" value="'.(GETPOST('hdat') ? GETPOST('hdat', 'alpha') : '00:00').'" required>';
         print '</td>';
         print '</tr>';
 

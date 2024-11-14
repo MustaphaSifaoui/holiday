@@ -1582,10 +1582,11 @@ public function getTotalHollyDaysCount($start_date, $end_date) {
 
 		$params = array();
 		$statusType = 'status6';
-		if (!empty($startdate) && $startdate >= dol_now()) {		// If not yet passed, we use a green "in live" color
-			$statusType = 'status4';
-			$params = array('tooltip'=>$this->labelStatus[$status].' - '.$langs->trans("Forthcoming"));
-		}
+        if (!empty($startdate) && $startdate >= dol_now()) {		// If not yet passed, we use a green "in live" color
+            $statusType = 'status4';
+            $label = isset($this->labelStatus[$status]) ? $this->labelStatus[$status] : 'Unknown Status';
+            $params = array('tooltip' => $label . ' - ' . $langs->trans("Forthcoming"));
+        }
 		if ($status == self::STATUS_DRAFT) {
 			$statusType = 'status0';
 		}
@@ -1599,7 +1600,9 @@ public function getTotalHollyDaysCount($start_date, $end_date) {
 			$statusType = 'status5';
 		}
 
-		return dolGetStatus($this->labelStatus[$status], $this->labelStatusShort[$status], '', $statusType, $mode, '', $params);
+        $label = isset($this->labelStatus[$status]) ? $this->labelStatus[$status] : 'Unknown Status';
+        $shortLabel = isset($this->labelStatusShort[$status]) ? $this->labelStatusShort[$status] : 'Unknown';
+        return dolGetStatus($label, $shortLabel, '', $statusType, $mode, '', $params);
 	}
 
 

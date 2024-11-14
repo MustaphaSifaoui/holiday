@@ -610,9 +610,13 @@ if ($resql) {
 			$excludefilter = $user->admin ? '' : 'u.rowid <> '.$user->id;
 			$valideurobjects = $validator->listUsersForGroup($excludefilter, 1);
 			$valideurarray = array();
-			foreach ($valideurobjects as $val) {
-				$valideurarray[$val->id] = $val->id;
-			}
+            foreach ($valideurobjects as $val) {
+                if (is_object($val) && property_exists($val, 'id')) {
+                    $valideurarray[$val->id] = $val->id;
+                } else {
+                    error_log("Unexpected data in valideurobjects: " . print_r($val, true));
+                }
+            }
 			print $form->select_dolusers($search_valideur, "search_valideur", 1, "", 0, $valideurarray, '', 0, 0, 0, $morefilter, 0, '', 'maxwidth125');
 			print '</td>';
 		} else {

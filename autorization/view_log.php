@@ -167,7 +167,7 @@ llxHeader('', $title);
 $sqlwhere = '';
 
 // Add condition to only select 'Autorisation' type
-$sqlwhere .= " AND cpl.fk_type = '31'"; // Replace '31' with the correct ID for 'Autorisation' if needed
+$sqlwhere .= " AND cpl.fk_type = '32' "; // Replace '31' with the correct ID for 'Autorisation' if needed
 
 if (!empty($search_year) && $search_year > 0) {
     if (!empty($search_month) && $search_month > 0) {
@@ -418,10 +418,10 @@ while ($i < min($num, $limit)) {
         print '<td class="tdoverflowmax400" title="' . dol_escape_htmltag($holidaylogstatic->description) . '">' . dol_escape_htmltag($holidaylogstatic->description) . '</td>';
     }
 
-//    // Display 'Autorisation' in Type column
-//    if (!empty($arrayfields['cpl.fk_type']['checked'])) {
-//        print '<td>' . $langs->trans('Autorisation') . '</td>';
-//    }
+    // Display 'Autorisation' in Type column
+    if (!empty($arrayfields['cpl.fk_type']['checked'])) {
+        print '<td>' . $langs->trans('Autorisation') . '</td>';
+    }
 
     // Action column
     print '<td></td>';

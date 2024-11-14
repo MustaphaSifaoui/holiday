@@ -1286,9 +1286,9 @@ if ((empty($id) && empty($ref)) || $action == 'create' || $action == 'add') {
 				print '</td>';
 				print '</tr>';
 
-                    // Date start & hours
+                // Date start & hours
                 if (!$edit) {
-                    // Display the Start Date
+                    // Display read-only mode
                     print '<tr>';
                     print '<td class="nowrap">';
                     print $form->textwithpicto($langs->trans('DateDebCP'), $langs->trans("Jour d'autorisation"));
@@ -1298,7 +1298,7 @@ if ((empty($id) && empty($ref)) || $action == 'create' || $action == 'add') {
                     print '</td>';
                     print '</tr>';
 
-                    // Display the Start Hour  on a new line
+                    // Display the Start Hour on a new line
                     if (!empty($object->hdat)) {
                         print '<tr>';
                         print '<td class="nowrap">';
@@ -1310,7 +1310,23 @@ if ((empty($id) && empty($ref)) || $action == 'create' || $action == 'add') {
                         print '</tr>';
                     }
 
+                } else {
+                    // Editable mode
+                    // Date start
+                    print '<tr>';
+                    print '<td class="fieldrequired">';
+                    print $form->textwithpicto($langs->trans("DateDebCP"), $langs->trans("Date d'autorisation"));
+                    print '</td>';
+                    print '<td>';
+                    // Display date selector with current value
+                    print $form->selectDate($object->date_debut, 'date_debut_', 0, 0, 0, '', 1, 1);
+                    print ' &nbsp; &nbsp; ';
+                    // Display time input with current value
+                    print '<input type="time" name="hdat" id="hdat" min="08:00" max="18:00" value="'.($object->hdat ? $object->hdat : '00:00').'" required>';
+                    print '</td>';
+                    print '</tr>';
                 }
+
 
 
 

@@ -1600,8 +1600,8 @@ public function getTotalHollyDaysCount($start_date, $end_date) {
 			$statusType = 'status5';
 		}
 
-        $label = isset($this->labelStatus[$status]) ? $this->labelStatus[$status] : 'Unknown Status';
-        $shortLabel = isset($this->labelStatusShort[$status]) ? $this->labelStatusShort[$status] : 'Unknown';
+        $label = isset($this->labelStatus[$status]) ? $this->labelStatus[$status] : ' ';
+        $shortLabel = isset($this->labelStatusShort[$status]) ? $this->labelStatusShort[$status] : ' ';
         return dolGetStatus($label, $shortLabel, '', $statusType, $mode, '', $params);
 	}
 

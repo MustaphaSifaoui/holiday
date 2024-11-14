@@ -304,8 +304,14 @@ if (!empty($arrayfields['cpl.fk_user_action']['checked'])) {
     $excludefilter = $user->admin ? '' : 'u.rowid <> ' . $user->id;
     $valideurobjects = $validator->listUsersForGroup($excludefilter, 1);
     $valideurarray = array();
+
+
     foreach ($valideurobjects as $val) {
-        $valideurarray[$val->id] = $val->id;
+        if (is_object($val) && property_exists($val, 'id')) {
+            $valideurarray[$val->id] = $val->id;
+        } else {
+            error_log("Unexpected data in valideurobjects: " . print_r($val, true));
+        }
     }
 
     print '<td class="liste_titre">';

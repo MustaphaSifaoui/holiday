@@ -310,7 +310,7 @@ if (!empty($arrayfields['cpl.fk_user_action']['checked'])) {
         if (is_object($val) && property_exists($val, 'id')) {
             $valideurarray[$val->id] = $val->id;
         } else {
-            error_log("Unexpected data in valideurobjects: " . print_r($val, true));
+            error_log("Unexpected data : " . print_r($val, true));
         }
     }
 
@@ -418,10 +418,10 @@ while ($i < min($num, $limit)) {
         print '<td class="tdoverflowmax400" title="' . dol_escape_htmltag($holidaylogstatic->description) . '">' . dol_escape_htmltag($holidaylogstatic->description) . '</td>';
     }
 
-    // Display 'Autorisation' in Type column
-    if (!empty($arrayfields['cpl.fk_type']['checked'])) {
-        print '<td>' . $langs->trans('Autorisation') . '</td>';
-    }
+//    // Display 'Autorisation' in Type column
+//    if (!empty($arrayfields['cpl.fk_type']['checked'])) {
+//        print '<td>' . $langs->trans('Autorisation') . '</td>';
+//    }
 
     // Action column
     print '<td></td>';

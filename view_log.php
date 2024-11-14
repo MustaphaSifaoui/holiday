@@ -335,9 +335,13 @@ if (!empty($arrayfields['cpl.fk_user_action']['checked'])) {
 	$excludefilter = $user->admin ? '' : 'u.rowid <> '.$user->id;
 	$valideurobjects = $validator->listUsersForGroup($excludefilter, 1);
 	$valideurarray = array();
-	foreach ($valideurobjects as $val) {
-		$valideurarray[$val->id] = $val->id;
-	}
+    foreach ($valideurobjects as $val) {
+        if (is_object($val) && property_exists($val, 'id')) {
+            $valideurarray[$val->id] = $val->id;
+        } else {
+            error_log("Unexpected data : " . print_r($val, true));
+        }
+    }
 
 	print '<td class="liste_titre">';
 	print $form->select_dolusers($search_validator, "search_validator", 1, "", 0, $valideurarray, '', 0, 0, 0, $morefilter, 0, '', 'maxwidth200');

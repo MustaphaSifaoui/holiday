@@ -440,7 +440,7 @@ if (empty($reshook)) {
 
         if (!$error) {
             $db->commit();
-            header('Location: list.php?restore_lastsearch_values=1');
+            header('Location: authorization\list.php?restore_lastsearch_values=1');
             exit;
         } else {
             $db->rollback();
@@ -484,12 +484,12 @@ if (empty($reshook)) {
                     $societeName = $conf->global->MAIN_APPLICATION_TITLE;
                 }
 
-                $subject = $societeName." - ".$langs->transnoentitiesnoconv("HolidaysToValidate");
+                $subject = $societeName." - ".$langs->transnoentitiesnoconv("AuthorizationToValidate");
 
                 // Content
                 $message = "<p>".$langs->transnoentitiesnoconv("Hello")." ".$destinataire->firstname.",</p>\n";
 
-                $message .= "<p>".$langs->transnoentities("HolidaysToValidateBody")."</p>\n";
+                $message .= "<p>".$langs->transnoentities("AuthorizationToValidateBody")."</p>\n";
 
 
                 // option to warn the validator in case of too short delay
@@ -499,7 +499,7 @@ if (empty($reshook)) {
                         $nowplusdelay = dol_time_plus_duree($now, $delayForRequest, 'd');
 
                         if ($object->date_debut < $nowplusdelay) {
-                            $message = "<p>".$langs->transnoentities("HolidaysToValidateDelay", $delayForRequest)."</p>\n";
+                            $message = "<p>".$langs->transnoentities("AuthorizationToValidateDelay", $delayForRequest)."</p>\n";
                         }
                     }
                 }
@@ -509,7 +509,7 @@ if (empty($reshook)) {
                     $nbopenedday = num_open_day($object->date_debut_gmt, $object->date_fin_gmt, 0, 1, $object->halfday);
 
                     if ($nbopenedday > $object->getCPforUser($object->fk_user, $object->fk_type)) {
-                        $message .= "<p>".$langs->transnoentities("HolidaysToValidateAlertSolde")."</p>\n";
+                        $message .= "<p>".$langs->transnoentities("AuthorizationToValidateAlertSolde")."</p>\n";
                     }
                 }
 
@@ -630,12 +630,12 @@ if (empty($reshook)) {
                         $societeName = $conf->global->MAIN_APPLICATION_TITLE;
                     }
 
-                    $subject = $societeName." - ".$langs->transnoentitiesnoconv("HolidaysValidated");
+                    $subject = $societeName." - ".$langs->transnoentitiesnoconv("AuthorizationValidated");
 
                     // Content
                     $message = "<p>".$langs->transnoentitiesnoconv("Hello")." ".$destinataire->firstname.",</p>\n";
 
-                    $message .= "<p>".$langs->transnoentities("HolidaysValidatedBody", dol_print_date($object->date_debut, 'day'), dol_print_date($object->date_fin, 'day'))."</p>\n";
+                    $message .= "<p>".$langs->transnoentities("AuthorizationValidatedBody", dol_print_date($object->date_debut, 'day'), dol_print_date($object->date_fin, 'day'))."</p>\n";
 
                     $link = dol_buildpath('/holiday/authorization/card.php', 3).'?id='.$object->id;
 
@@ -712,12 +712,12 @@ if (empty($reshook)) {
                             $societeName = $conf->global->MAIN_APPLICATION_TITLE;
                         }
 
-                        $subject = $societeName." - ".$langs->transnoentitiesnoconv("HolidaysRefused");
+                        $subject = $societeName." - ".$langs->transnoentitiesnoconv("AuthorizationRefused");
 
                         // Content
                         $message = "<p>".$langs->transnoentitiesnoconv("Hello")." ".$destinataire->firstname.",</p>\n";
 
-                        $message .= "<p>".$langs->transnoentities("HolidaysRefusedBody", dol_print_date($object->date_debut, 'day'), dol_print_date($object->date_fin, 'day'))."<p>\n";
+                        $message .= "<p>".$langs->transnoentities("AuthorizationRefusedBody", dol_print_date($object->date_debut, 'day'), dol_print_date($object->date_fin, 'day'))."<p>\n";
                         $message .= "<p>".GETPOST('detail_refuse', 'alpha')."</p>";
 
                         $link = dol_buildpath('/holiday/authorization/card.php', 3).'?id='.$object->id;
@@ -860,14 +860,14 @@ if (empty($reshook)) {
                     $societeName = $conf->global->MAIN_APPLICATION_TITLE;
                 }
 
-                $subject = $societeName." - ".$langs->transnoentitiesnoconv("HolidaysCanceled");
+                $subject = $societeName." - ".$langs->transnoentitiesnoconv("AuthorizationCanceled");
 
                 // Content
                 $message = "<p>".$langs->transnoentitiesnoconv("Hello")." ".$destinataire->firstname.",</p>\n";
 
-                $message .= "<p>".$langs->transnoentities("HolidaysCanceledBody", dol_print_date($object->date_debut, 'day'), dol_print_date($object->date_fin, 'day'))."</p>\n";
+                $message .= "<p>".$langs->transnoentities("AuthorizationCanceledBody", dol_print_date($object->date_debut, 'day'), dol_print_date($object->date_fin, 'day'))."</p>\n";
 
-                $link = dol_buildpath('/holiday/holiday/card.php', 3).'?id='.$object->id;
+                $link = dol_buildpath('/holiday/authorization/card.php', 3).'?id='.$object->id;
 
                 $message .= "<ul>\n";
                 $message .= "<li>".$langs->transnoentitiesnoconv("ModifiedBy")." : ".dolGetFirstLastname($expediteur->firstname, $expediteur->lastname)."</li>\n";

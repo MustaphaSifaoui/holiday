@@ -73,7 +73,7 @@ class Holiday extends CommonObject
     /**
      * @var string start time (mainly used in Discharge)
      */
-    public $hdat;
+    public $hdat = '';
 
 	public $date_debut = ''; // Date start in PHP server TZ
 	public $date_fin = ''; // Date end in PHP server TZ
@@ -451,7 +451,6 @@ class Holiday extends CommonObject
 				$this->fk_user_create = $obj->fk_user_create;
 				$this->fk_type = $obj->fk_type;
 				$this->entity = $obj->entity;
-
                 $this->hdat = $obj->hdat;
 				$this->fetch_optionals();
 
@@ -485,6 +484,7 @@ class Holiday extends CommonObject
 		$sql .= " cp.ref,";
 
 		$sql .= " cp.fk_user,";
+		$sql .= " cp.hdat,";
 		$sql .= " cp.fk_type,";
 		$sql .= " cp.date_create,";
 		$sql .= " cp.description,";
@@ -554,6 +554,7 @@ class Holiday extends CommonObject
 
 				$tab_result[$i]['fk_user'] = $obj->fk_user;
 				$tab_result[$i]['fk_type'] = $obj->fk_type;
+				$tab_result[$i]['hdat'] = $obj->hdat;
 				$tab_result[$i]['date_create'] = $this->db->jdate($obj->date_create);
 				$tab_result[$i]['description'] = $obj->description;
 				$tab_result[$i]['date_debut'] = $this->db->jdate($obj->date_debut);
@@ -614,6 +615,7 @@ class Holiday extends CommonObject
 		$sql .= " cp.ref,";
 
 		$sql .= " cp.fk_user,";
+        $sql .= " cp.hdat,";
 		$sql .= " cp.fk_type,";
 		$sql .= " cp.date_create,";
 		$sql .= " cp.tms as date_update,";
@@ -683,6 +685,7 @@ class Holiday extends CommonObject
 				$tab_result[$i]['ref'] = ($obj->ref ? $obj->ref : $obj->rowid);
 
 				$tab_result[$i]['fk_user'] = $obj->fk_user;
+				$tab_result[$i]['hdat'] = $obj->hdat;
 				$tab_result[$i]['fk_type'] = $obj->fk_type;
 				$tab_result[$i]['date_create'] = $this->db->jdate($obj->date_create);
 				$tab_result[$i]['date_update'] = $this->db->jdate($obj->date_update);
@@ -703,9 +706,6 @@ class Holiday extends CommonObject
 				$tab_result[$i]['date_cancel'] = $obj->date_cancel;
 				$tab_result[$i]['fk_user_cancel'] = $obj->fk_user_cancel;
 				$tab_result[$i]['detail_refuse'] = $obj->detail_refuse;
-                // extra field
-				$tab_result[$i]['hdat'] = $obj->hdat;
-
 
 				$tab_result[$i]['user_firstname'] = $obj->user_firstname;
 				$tab_result[$i]['user_lastname'] = $obj->user_lastname;
@@ -1030,7 +1030,11 @@ public function getTotalHollyDaysCount($start_date, $end_date) {
 		$sql = "UPDATE ".MAIN_DB_PREFIX."holiday SET";
 
 		$sql .= " description= '".$this->db->escape($this->description)."',";
-
+        if (!empty($this->hdat)) {
+            $sql .= " hdat = '".$this->db->escape($this->hdat)."',";
+        } else {
+            $sql .= " hdat = NULL,";
+        }
 		if (!empty($this->date_debut)) {
 			$sql .= " date_debut = '".$this->db->idate($this->date_debut)."',";
 		} else {
@@ -1155,84 +1159,103 @@ public function getTotalHollyDaysCount($start_date, $end_date) {
 			}
 		}
 
-		// Update request
-		$sql = "UPDATE ".MAIN_DB_PREFIX."holiday SET";
 
-		$sql .= " description= '".$this->db->escape($this->description)."',";
+        // Build the UPDATE query
+        $sql = "UPDATE ".MAIN_DB_PREFIX."holiday SET";
+        $sql .= " description= '".$this->db->escape($this->description)."',";
+        if (!empty($this->hdat)) {
+            $sql .= " hdat = '".$this->db->escape($this->hdat)."',";
+        } else {
+            $sql .= " hdat = NULL,";
+        }
+        if (!empty($this->date_debut)) {
+            $sql .= " date_debut = '".$this->db->idate($this->date_debut)."',";
+        } else {
+            $error++;
+        }
 
-		if (!empty($this->date_debut)) {
-			$sql .= " date_debut = '".$this->db->idate($this->date_debut)."',";
-		} else {
-			$error++;
-		}
-		if (!empty($this->date_fin)) {
-			$sql .= " date_fin = '".$this->db->idate($this->date_fin)."',";
-		} else {
-			$error++;
-		}
-		$sql .= " halfday = ".$this->halfday.",";
-		if (!empty($this->statut) && is_numeric($this->statut)) {
-			$sql .= " statut = ".$this->statut.",";
-		} else {
-			$error++;
-		}
-		if (!empty($this->fk_validator)) {
-			$sql .= " fk_validator = '".$this->db->escape($this->fk_validator)."',";
-		} else {
-			$error++;
-		}
-		if (!empty($this->date_valid)) {
-			$sql .= " date_valid = '".$this->db->idate($this->date_valid)."',";
-		} else {
-			$sql .= " date_valid = NULL,";
-		}
-		if (!empty($this->fk_user_valid)) {
-			$sql .= " fk_user_valid = ".((int) $this->fk_user_valid).",";
-		} else {
-			$sql .= " fk_user_valid = NULL,";
-		}
-		if (!empty($this->date_approval)) {
-			$sql .= " date_approval = '".$this->db->idate($this->date_approval)."',";
-		} else {
-			$sql .= " date_approval = NULL,";
-		}
-		if (!empty($this->fk_user_approve)) {
-			$sql .= " fk_user_approve = ".((int) $this->fk_user_approve).",";
-		} else {
-			$sql .= " fk_user_approve = NULL,";
-		}
-		if (!empty($this->date_refuse)) {
-			$sql .= " date_refuse = '".$this->db->idate($this->date_refuse)."',";
-		} else {
-			$sql .= " date_refuse = NULL,";
-		}
-		if (!empty($this->fk_user_refuse)) {
-			$sql .= " fk_user_refuse = ".((int) $this->fk_user_refuse).",";
-		} else {
-			$sql .= " fk_user_refuse = NULL,";
-		}
-		if (!empty($this->date_cancel)) {
-			$sql .= " date_cancel = '".$this->db->idate($this->date_cancel)."',";
-		} else {
-			$sql .= " date_cancel = NULL,";
-		}
-		if (!empty($this->fk_user_cancel)) {
-			$sql .= " fk_user_cancel = ".((int) $this->fk_user_cancel).",";
-		} else {
-			$sql .= " fk_user_cancel = NULL,";
-		}
-		if (!empty($this->detail_refuse)) {
-			$sql .= " detail_refuse = '".$this->db->escape($this->detail_refuse)."'";
-		} else {
-			$sql .= " detail_refuse = NULL";
-		}
+        if (!empty($this->date_fin)) {
+            $sql .= " date_fin = '".$this->db->idate($this->date_fin)."',";
+        } else {
+            $error++;
+        }
 
-		$sql .= " WHERE rowid = ".((int) $this->id);
+        $sql .= " halfday = ".$this->halfday.",";
 
-		$this->db->begin();
+        if (!empty($this->statut) && is_numeric($this->statut)) {
+            $sql .= " statut = ".$this->statut.",";
+        } else {
+            $error++;
+        }
 
-		dol_syslog(get_class($this)."::update", LOG_DEBUG);
+        if (!empty($this->fk_validator)) {
+            $sql .= " fk_validator = '".$this->db->escape($this->fk_validator)."',";
+        } else {
+            $error++;
+        }
+
+        if (!empty($this->date_valid)) {
+            $sql .= " date_valid = '".$this->db->idate($this->date_valid)."',";
+        } else {
+            $sql .= " date_valid = NULL,";
+        }
+
+        if (!empty($this->fk_user_valid)) {
+            $sql .= " fk_user_valid = ".((int) $this->fk_user_valid).",";
+        } else {
+            $sql .= " fk_user_valid = NULL,";
+        }
+
+        if (!empty($this->date_approval)) {
+            $sql .= " date_approval = '".$this->db->idate($this->date_approval)."',";
+        } else {
+            $sql .= " date_approval = NULL,";
+        }
+
+        if (!empty($this->fk_user_approve)) {
+            $sql .= " fk_user_approve = ".((int) $this->fk_user_approve).",";
+        } else {
+            $sql .= " fk_user_approve = NULL,";
+        }
+
+        if (!empty($this->date_refuse)) {
+            $sql .= " date_refuse = '".$this->db->idate($this->date_refuse)."',";
+        } else {
+            $sql .= " date_refuse = NULL,";
+        }
+
+        if (!empty($this->fk_user_refuse)) {
+            $sql .= " fk_user_refuse = ".((int) $this->fk_user_refuse).",";
+        } else {
+            $sql .= " fk_user_refuse = NULL,";
+        }
+
+        if (!empty($this->date_cancel)) {
+            $sql .= " date_cancel = '".$this->db->idate($this->date_cancel)."',";
+        } else {
+            $sql .= " date_cancel = NULL,";
+        }
+
+        if (!empty($this->fk_user_cancel)) {
+            $sql .= " fk_user_cancel = ".((int) $this->fk_user_cancel).",";
+        } else {
+            $sql .= " fk_user_cancel = NULL,";
+        }
+
+        if (!empty($this->detail_refuse)) {
+            $sql .= " detail_refuse = '".$this->db->escape($this->detail_refuse)."',";
+        } else {
+            $sql .= " detail_refuse = NULL,";
+        }
+        $sql = rtrim($sql, ',');
+        $sql .= " WHERE rowid = ".((int) $this->id);
+
+
+        $this->db->begin();
+        dol_syslog('SQL QUERRY1:' . $sql, LOG_INFO);
+        dol_syslog(get_class($this)."::update", LOG_DEBUG);
 		$resql = $this->db->query($sql);
+        dol_syslog('sqlresult:' . $resql, LOG_INFO);
 		if (!$resql) {
 			$error++; $this->errors[] = "Error ".$this->db->lasterror();
 		}

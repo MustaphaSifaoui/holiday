@@ -163,25 +163,17 @@ if (empty($reshook)) {
             $object = new Holiday($db);
 
             $db->begin();
-
             $date_debut = dol_mktime(0, 0, 0, GETPOST('date_debut_month'), GETPOST('date_debut_day'), GETPOST('date_debut_year'));
-            $date_fin = dol_mktime(0, 0, 0, GETPOST('date_fin_month'), GETPOST('date_fin_day'), GETPOST('date_fin_year'));
+            $date_fin = $date_debut;
+
             $date_debut_gmt = dol_mktime(0, 0, 0, GETPOST('date_debut_month'), GETPOST('date_debut_day'), GETPOST('date_debut_year'), 1);
             $date_fin_gmt = dol_mktime(0, 0, 0, GETPOST('date_fin_month'), GETPOST('date_fin_day'), GETPOST('date_fin_year'), 1);
             $starthalfday = GETPOST('starthalfday');
             $endhalfday = GETPOST('endhalfday');
             $type = GETPOST('type');
-            $hdat = GETPOST('hdat', 'alpha'); // Use 'alpha' or appropriate filter
+            $hdat = GETPOST('hdat','alpha');
 
-            /*
-            $halfday = 0;
-			if ($starthalfday == 'afternoon' && $endhalfday == 'morning') {
-				$halfday = 2;
-			} elseif ($starthalfday == 'afternoon') {
-				$halfday = -1;
-			} elseif ($endhalfday == 'morning') {
-				$halfday = 1;
-			}*/
+
 
             $approverid = GETPOST('valideur', 'int');
             $description = trim(GETPOST('description', 'restricthtml'));
@@ -223,21 +215,7 @@ if (empty($reshook)) {
                 $action = 'create';
             }
 
-            // Commented since there will be no data validation
-            // If no end date
-            /*
-           if (empty($date_fin)) {
-               setEventMessages($langs->trans("NoDateFin"), null, 'errors');
-               $error++;
-               $action = 'create';
-           }
-           // If start date after end date
-           if ($date_debut > $date_fin) {
-               setEventMessages($langs->trans("ErrorEndDateCP"), null, 'errors');
-               $error++;
-               $action = 'create';
-           }
-           */
+
             // Check if there is already holiday for this period
             $verifCP = $object->verifDateHolidayCP($fuserid, $date_debut, $date_fin, $halfday);
             if (!$verifCP) {
@@ -280,8 +258,8 @@ if (empty($reshook)) {
                 $object->fk_validator = $approverid;
                 $object->fk_type = $type;
                 $object->date_debut = $date_debut;
-                //$object->date_fin = $date_fin;
-                //$object->halfday = $halfday;
+                $object->date_fin = $date_fin;
+                $object->halfday = $halfday;
                 $object->hdat = $hdat;
 
                 $result = $object->create($user);
@@ -302,7 +280,21 @@ if (empty($reshook)) {
             }
         }
     }
+    function validate_time($time) {
 
+        return true;
+        //return preg_match('/^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$/', $time);
+    }
+
+
+
+    $hdat = GETPOST('hdat', 'alpha');
+    if (!validate_time($hdat)) {
+        setEventMessages($langs->trans('InvalidTimeFormat'), null, 'errors');
+        $error++;
+    } else {
+        $object->hdat = $hdat;
+    }
     // If this is an update and we are an approver, we can update to change the expected approver with another one (including himself)
     if ($action == 'update' && GETPOSTISSET('savevalidator') && !empty($user->rights->holiday->approve)) {
         $object->fetch($id);
@@ -328,12 +320,14 @@ if (empty($reshook)) {
 
     if ($action == 'update' && !GETPOSTISSET('savevalidator')) {
         $date_debut = dol_mktime(0, 0, 0, GETPOST('date_debut_month'), GETPOST('date_debut_day'), GETPOST('date_debut_year'));
-        $date_fin = dol_mktime(0, 0, 0, GETPOST('date_fin_month'), GETPOST('date_fin_day'), GETPOST('date_fin_year'));
+        $date_fin = $date_debut;
         $date_debut_gmt = dol_mktime(0, 0, 0, GETPOST('date_debut_month'), GETPOST('date_debut_day'), GETPOST('date_debut_year'), 1);
         $date_fin_gmt = dol_mktime(0, 0, 0, GETPOST('date_fin_month'), GETPOST('date_fin_day'), GETPOST('date_fin_year'), 1);
         $starthalfday = GETPOST('starthalfday');
         $endhalfday = GETPOST('endhalfday');
         $halfday = 0;
+
+
         if ($starthalfday == 'afternoon' && $endhalfday == 'morning') {
             $halfday = 2;
         } elseif ($starthalfday == 'afternoon') {
@@ -341,6 +335,7 @@ if (empty($reshook)) {
         } elseif ($endhalfday == 'morning') {
             $halfday = 1;
         }
+
 
         // If no right to modify a request
         if (!$cancreateall) {
@@ -375,10 +370,10 @@ if (empty($reshook)) {
                 }
 
                 // If no end date
-                if (!GETPOST('date_fin_')) {
-                    header('Location: '.$_SERVER["PHP_SELF"].'?id='.$object->id.'&action=edit&token='.newToken().'&error=nodatefin');
-                    exit;
-                }
+//                if (!GETPOST('date_fin_')) {
+//                    header('Location: '.$_SERVER["PHP_SELF"].'?id='.$object->id.'&action=edit&token='.newToken().'&error=nodatefin');
+//                    exit;
+//                }
 
                 // If start date after end date
                 if ($date_debut > $date_fin) {
@@ -404,6 +399,7 @@ if (empty($reshook)) {
                 $object->date_fin = $date_fin;
                 $object->fk_validator = $approverid;
                 $object->halfday = $halfday;
+                $object->hdat = $hdat;
 
                 // Update
                 $verif = $object->update($user);
@@ -871,7 +867,7 @@ if (empty($reshook)) {
 
                 $message .= "<p>".$langs->transnoentities("HolidaysCanceledBody", dol_print_date($object->date_debut, 'day'), dol_print_date($object->date_fin, 'day'))."</p>\n";
 
-                $link = dol_buildpath('/holiday/card.php', 3).'?id='.$object->id;
+                $link = dol_buildpath('/holiday/holiday/card.php', 3).'?id='.$object->id;
 
                 $message .= "<ul>\n";
                 $message .= "<li>".$langs->transnoentitiesnoconv("ModifiedBy")." : ".dolGetFirstLastname($expediteur->firstname, $expediteur->lastname)."</li>\n";
@@ -957,9 +953,9 @@ if ((empty($id) && empty($ref)) || $action == 'create' || $action == 'add') {
                 case 'nodatedebut':
                     $errors[] = $langs->trans('NoDateDebut');
                     break;
-                case 'nodatefin':
-                    $errors[] = $langs->trans('NoDateFin');
-                    break;
+//                case 'nodatefin':
+//                    $errors[] = $langs->trans('NoDateFin');
+//                    break;
                 case 'DureeHoliday':
                     $errors[] = $langs->trans('ErrorDureeCP');
                     break;
@@ -988,11 +984,11 @@ if ((empty($id) && empty($ref)) || $action == 'create' || $action == 'add') {
 		                 return false;
 		               }
 		            }
-		            else
-		            {
-		              alert("'.dol_escape_js($langs->transnoentities('NoDateFin')).'");
-		              return false;
-		            }
+//		            else
+//		            {
+//		              alert("'.dol_escape_js($langs->transnoentities('NoDateFin')).'");
+//		              return false;
+//		            }
 		        }
 		        else
 		        {
@@ -1104,7 +1100,7 @@ if ((empty($id) && empty($ref)) || $action == 'create' || $action == 'add') {
         print $form->textwithpicto($langs->trans("DateDebCP"), $langs->trans("Date d'autorisation"));
         print '</td>';
         print '<td>';
-        // Si la demande ne vient pas de l'agenda
+
         if (!GETPOST('date_debut_')) {
             print $form->selectDate(-1, 'date_debut_', 0, 0, 0, '', 1, 1);
         } else {
@@ -1112,6 +1108,7 @@ if ((empty($id) && empty($ref)) || $action == 'create' || $action == 'add') {
             print $form->selectDate($tmpdate, 'date_debut_', 0, 0, 0, '', 1, 1);
         }
         print ' &nbsp; &nbsp; ';
+
         print '<input type="time" name="hdat" id="hdat" min="08:00" max="18:00" value="'.(GETPOST('hdat') ? GETPOST('hdat', 'alpha') : '00:00').'" required>';
         print '</td>';
         print '</tr>';
@@ -1286,45 +1283,43 @@ if ((empty($id) && empty($ref)) || $action == 'create' || $action == 'add') {
                 print '</td>';
                 print '</tr>';
 
-                // Date start & hours
+                // hdat
                 if (!$edit) {
-                    // Display the Start Date
+                    // Display the Start Hour on a new line
                     print '<tr>';
                     print '<td class="nowrap">';
-                    print $form->textwithpicto($langs->trans('DateDebCP'), $langs->trans("Jour d'autorisation"));
+                    print $langs->trans('HeureDebut'); // Translated label
                     print '</td>';
                     print '<td>';
-                    print dol_print_date($object->date_debut, 'day');
+                    print dol_escape_htmltag($object->hdat); // Escape HTML for safe display
                     print '</td>';
                     print '</tr>';
+                } else {
+                    // Edit mode for Start Hour
+                    print '<tr>';
+                    print '<td>'.$langs->trans('HeureDebut').'</td>';
+                    print '<td>';
+                    // Render a time input field
+                    print '<input type="time" name="hdat" id="hdat" min="08:00" max="18:00" value="'.(GETPOST('hdat') ? GETPOST('hdat', 'alpha') : '11:11').'" required>';                    print '</td>';
+                    dol_syslog("hdat value when updating: ".$object->hdat,LOG_INFO);
 
-                    // Display the Start Hour  on a new line
-                    if (!empty($object->hdat)) {
-                        print '<tr>';
-                        print '<td class="nowrap">';
-                        print $langs->trans('Heure debut');
-                        print '</td>';
-                        print '<td>';
-                        print dol_escape_htmltag($object->hdat);
-                        print '</td>';
-                        print '</tr>';
-                    }
-
+                    print '</td>';
+                    print '</tr>';
                 }
 
 
 
-                //$starthalfday = ($object->halfday == -1 || $object->halfday == 2) ? 'afternoon' : 'morning';
-                //$endhalfday = ($object->halfday == 1 || $object->halfday == 2) ? 'morning' : 'afternoon';
-                /*
+                $starthalfday = '';
+                $endhalfday = '';
+                // Date start
 				if (!$edit) {
 					print '<tr>';
 					print '<td class="nowrap">';
-					print $form->textwithpicto($langs->trans('DateDebCP'), $langs->trans("FirstDayOfHoliday"));
+					print $form->textwithpicto($langs->trans('DateDebCP'), $langs->trans(""));
 					print '</td>';
 					print '<td>'.dol_print_date($object->date_debut, 'day');
-					print ' &nbsp; &nbsp; ';
-					print '<span class="opacitymedium">'.$langs->trans($listhalfday[$starthalfday]).'</span>';
+					//print ' &nbsp; &nbsp; ';
+					//print '<span class="opacitymedium">'.$langs->trans($listhalfday[$starthalfday]).'</span>';
 					print '</td>';
 					print '</tr>';
 				} else {
@@ -1334,57 +1329,12 @@ if ((empty($id) && empty($ref)) || $action == 'create' || $action == 'add') {
 					print '</td>';
 					print '<td>';
 					print $form->selectDate($object->date_debut, 'date_debut_');
-					print ' &nbsp; &nbsp; ';
-					print $form->selectarray('starthalfday', $listhalfday, (GETPOST('starthalfday') ?GETPOST('starthalfday') : $starthalfday));
+					//print ' &nbsp; &nbsp; ';
+					//print $form->selectarray('starthalfday', $listhalfday, (GETPOST('starthalfday') ?GETPOST('starthalfday') : $starthalfday));
 					print '</td>';
 					print '</tr>';
-				} */
-                /*
-                 * Commented since there will be no need to display date_fin on the details
-				if (!$edit) {
-					print '<tr>';
-					print '<td class="nowrap">';
-					print $form->textwithpicto($langs->trans('DateFinCP'), $langs->trans("LastDayOfHoliday"));
-					print '</td>';
-					print '<td>'.dol_print_date($object->date_fin, 'day');
-					print ' &nbsp; &nbsp; ';
-					print '<span class="opacitymedium">'.$langs->trans($listhalfday[$endhalfday]).'</span>';
-					print '</td>';
-					print '</tr>';
-				} else {
-					print '<tr>';
-					print '<td class="nowrap">';
-					print $form->textwithpicto($langs->trans('DateFinCP'), $langs->trans("LastDayOfHoliday"));
-					print '</td>';
-					print '<td>';
-					print $form->selectDate($object->date_fin, 'date_fin_');
-					print ' &nbsp; &nbsp; ';
-					print $form->selectarray('endhalfday', $listhalfday, (GETPOST('endhalfday') ?GETPOST('endhalfday') : $endhalfday));
-					print '</td>';
-					print '</tr>';
-				} */
-
-                // Nb of days
-
-                //Commented since we'll note check the balance
-                /*
-				print '<tr>';
-				print '<td>';
-				$htmlhelp = $langs->trans('NbUseDaysCPHelp');
-				$includesaturday = (isset($conf->global->MAIN_NON_WORKING_DAYS_INCLUDE_SATURDAY) ? $conf->global->MAIN_NON_WORKING_DAYS_INCLUDE_SATURDAY : 1);
-				$includesunday   = (isset($conf->global->MAIN_NON_WORKING_DAYS_INCLUDE_SUNDAY) ? $conf->global->MAIN_NON_WORKING_DAYS_INCLUDE_SUNDAY : 1);
-				if ($includesaturday) {
-					$htmlhelp .= '<br>'.$langs->trans("DayIsANonWorkingDay", $langs->trans("Saturday"));
 				}
-				if ($includesunday) {
-					$htmlhelp .= '<br>'.$langs->trans("DayIsANonWorkingDay", $langs->trans("Sunday"));
-				}
-				print $form->textwithpicto($langs->trans('NbUseDaysCP'), $htmlhelp);
-				print '</td>';
-				print '<td>';
-				print num_open_day($object->date_debut_gmt, $object->date_fin_gmt, 0, 1, $object->halfday);
-				print '</td>';
-				print '</tr>';*/
+
 
                 if ($object->statut == Holiday::STATUS_REFUSED) {
                     print '<tr>';
